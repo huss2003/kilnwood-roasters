@@ -4,12 +4,14 @@ import { useRef } from "react";
 import { gsap, ScrollTrigger, SplitText, useGSAP } from "@/lib/gsap";
 import { Emblem, Arrow } from "./Emblem";
 import Magnetic from "./Magnetic";
+import Heat from "./Heat";
 
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
 
   useGSAP(
-    () => {
+    (_ctx, contextSafe) => {
+      const safe = contextSafe!;
       const split = SplitText.create(".hero__title", {
         type: "lines,chars",
         mask: "lines",
@@ -19,8 +21,9 @@ export default function Hero() {
       gsap.set([".hero__lede", ".hero__ctas > *", ".hero__bottom .eyebrow"], { y: 30, opacity: 0 });
       gsap.set(".hero__emblem", { scale: 0, rotate: -120 });
       gsap.set(".hero__rule", { scaleX: 0 });
+      gsap.set(".hero__scroll", { opacity: 0 });
 
-      const intro = () => {
+      const intro = safe(() => {
         const tl = gsap.timeline();
         tl.to(split.chars, {
           yPercent: 0,
@@ -34,9 +37,33 @@ export default function Hero() {
             [".hero__bottom .eyebrow", ".hero__lede", ".hero__ctas > *"],
             { y: 0, opacity: 1, duration: 1, ease: "power3.out", stagger: 0.08 },
             0.6
-          );
-      };
+          )
+          .to(".hero__scroll", { opacity: 1, duration: 1 }, 1);
+      });
       window.addEventListener("kw:loaded", intro, { once: true });
+
+      // After the intro: scrolling away closes the kiln back into an arch.
+      const closeKiln = safe(() => {
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+        const side = W * 0.05;
+        const r = (W - side * 2) / 2;
+        gsap.fromTo(
+          ".hero__bg",
+          { clipPath: "inset(0px 0px 0px 0px round 0px 0px 0px 0px)" },
+          {
+            clipPath: `inset(0px ${side}px ${H * 0.12}px ${side}px round ${r}px ${r}px 0px 0px)`,
+            ease: "none",
+            scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
+          }
+        );
+        gsap.to(".hero__bg canvas", {
+          scale: 1.12,
+          ease: "none",
+          scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
+        });
+      });
+      window.addEventListener("kw:revealed", closeKiln, { once: true });
 
       // continuous emblem spin, accelerated by scroll velocity
       const spin = gsap.to(".emblem-ring", {
@@ -61,15 +88,10 @@ export default function Hero() {
         ease: "none",
         scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
       });
-      gsap.to(".hero__glow", {
-        yPercent: 30,
-        scale: 1.2,
-        ease: "none",
-        scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
-      });
 
       return () => {
         window.removeEventListener("kw:loaded", intro);
+        window.removeEventListener("kw:revealed", closeKiln);
         split.revert();
       };
     },
@@ -78,12 +100,14 @@ export default function Hero() {
 
   return (
     <section className="hero" id="top" ref={root}>
-      <div className="hero__glow" />
+      <div className="hero__bg">
+        <Heat />
+      </div>
       <Emblem className="hero__emblem" />
       <h1 className="hero__title">
         Roasted slow. Poured with <em>intent.</em>
       </h1>
-      <div style={{ position: "relative", marginTop: 48 }}>
+      <div style={{ position: "relative", zIndex: 1, marginTop: 48 }}>
         <div
           className="hero__rule"
           style={{
