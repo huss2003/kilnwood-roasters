@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { gsap, ScrollTrigger, SplitText, useGSAP } from "@/lib/gsap";
 import { Emblem, Arrow } from "./Emblem";
 import Magnetic from "./Magnetic";
-import Heat from "./Heat";
+import { HERO } from "@/lib/photos";
 
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
@@ -42,28 +42,13 @@ export default function Hero() {
       });
       window.addEventListener("kw:loaded", intro, { once: true });
 
-      // After the intro: scrolling away closes the kiln back into an arch.
-      const closeKiln = safe(() => {
-        const W = window.innerWidth;
-        const H = window.innerHeight;
-        const side = W * 0.05;
-        const r = (W - side * 2) / 2;
-        gsap.fromTo(
-          ".hero__bg",
-          { clipPath: "inset(0px 0px 0px 0px round 0px 0px 0px 0px)" },
-          {
-            clipPath: `inset(0px ${side}px ${H * 0.12}px ${side}px round ${r}px ${r}px 0px 0px)`,
-            ease: "none",
-            scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
-          }
-        );
-        gsap.to(".hero__bg canvas", {
-          scale: 1.12,
-          ease: "none",
-          scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
-        });
+      // Slow photographic parallax as the hero scrolls away.
+      gsap.to(".hero__bg img", {
+        yPercent: 14,
+        scale: 1.08,
+        ease: "none",
+        scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
       });
-      window.addEventListener("kw:revealed", closeKiln, { once: true });
 
       // continuous emblem spin, accelerated by scroll velocity
       const spin = gsap.to(".emblem-ring", {
@@ -91,7 +76,6 @@ export default function Hero() {
 
       return () => {
         window.removeEventListener("kw:loaded", intro);
-        window.removeEventListener("kw:revealed", closeKiln);
         split.revert();
       };
     },
@@ -101,7 +85,9 @@ export default function Hero() {
   return (
     <section className="hero" id="top" ref={root}>
       <div className="hero__bg">
-        <Heat />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={HERO} alt="A cup of coffee surrounded by roasted beans" />
+        <div className="photo-shade" />
       </div>
       <Emblem className="hero__emblem" />
       <h1 className="hero__title">

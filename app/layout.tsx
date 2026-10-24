@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <noscript>
-          <style>{`.kiln{display:none}`}</style>
+          <style>{`.intro{display:none}`}</style>
         </noscript>
         {children}
       </body>
