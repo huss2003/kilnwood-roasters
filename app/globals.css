@@ -117,41 +117,84 @@ body::after {
   margin-bottom: -0.08em;
 }
 
-/* ---------- Loader ---------- */
-.loader {
+/* ---------- Intro ---------- */
+.intro {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: var(--ember);
-  color: var(--espresso);
+}
+.intro__cols {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+.intro__col {
+  flex: 1 1 0;
+  height: 100%;
+  margin-right: -1px; /* hide sub-pixel seams */
+  will-change: transform;
+}
+.intro__cols--under .intro__col { background: var(--ember); }
+.intro__cols--top .intro__col { background: var(--espresso); }
+.intro__content {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: var(--gutter);
+  color: var(--cream);
 }
-.loader__top {
+.intro__row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 24px;
 }
-.loader__count {
+.intro__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(16px, 2.4vw, 32px);
+}
+.intro__mark {
+  width: clamp(52px, 6vw, 88px);
+  height: auto;
+  color: var(--ember);
+  overflow: visible;
+}
+.intro__word {
   font-family: var(--serif);
-  font-size: clamp(96px, 22vw, 340px);
-  line-height: 0.8;
   font-weight: 300;
+  font-size: clamp(64px, 15vw, 240px);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
   font-variation-settings: "opsz" 144;
-  align-self: flex-end;
-  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-.loader__bar {
-  height: 2px;
-  background: rgba(21, 16, 12, 0.2);
-  margin-top: 24px;
+.intro__word em {
+  font-style: italic;
+  color: var(--ember);
 }
-.loader__bar span {
+.intro__line {
+  flex: 1;
+  max-width: 420px;
+  height: 1px;
+  background: var(--cream-faint);
+}
+.intro__line span {
   display: block;
   height: 100%;
-  width: 0;
-  background: var(--espresso);
+  background: var(--cream);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+.intro__pct {
+  font-variant-numeric: tabular-nums;
+  color: var(--cream);
+}
+@media (max-width: 600px) {
+  .intro__row .intro__meta:first-child { display: none; }
 }
 
 /* ---------- Cursor ---------- */
